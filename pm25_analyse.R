@@ -31,7 +31,7 @@ plot(q1_data,col="red",xlab="year",ylab="PM25",cex=1,pch=15,main="United States 
 
 ## > QUESTION 2 "Total emissions from PM2.5 in the Baltimore City, Maryland (fips == "24510") from 1999 to 2008" < #
 
-# Get onlu Baltimore observations
+# Get only Baltimore observations
 NEI_pm25_baltimore <- NEI_pm25[NEI_pm25$fips == "24510",]
 
 # Use ddply to group by "year" and sum "Emissions"
@@ -40,12 +40,16 @@ q2_data <- ddply(NEI_pm25_baltimore, c("year"), summarise,
 plot(q2_data,col="blue",xlab="year",ylab="PM25",cex=1,pch=15,main="Baltimore PM2.5 Emission in years 1999,2002,2005,2008.")
 
 
-# > QUESTION 3 "Total emissions from PM2.5 in the United States from 1999 to 2008 per source type (point, nonpoint, onroad, nonroad)" < #
-q3_data <- ddply(NEI_pm25, c("type","year"), summarise,
+# > QUESTION 3 "Total emissions from PM2.5 in Baltimore from 1999 to 2008 per source type (point, nonpoint, onroad, nonroad)" < #
+
+# Get only Baltimore observations
+NEI_pm25_baltimore <- NEI_pm25[NEI_pm25$fips == "24510",]
+
+q3_data <- ddply(NEI_pm25_baltimore, c("type","year"), summarise,
                  TotalPerYear    = sum(as.numeric(Emissions)))
 qplot(year, TotalPerYear, data = q3_data, geom = "line",
     colour = type,
-    xlab = "Year"
+    xlab = "Year",
     ylab = "Total Emissions per Year",
-    main = "United States PM2.5 Emission in years 1999,2002,2005,2008 per each source type")
+    main = "Baltimore PM2.5 Emission in years 1999,2002,2005,2008 per each source type")
 

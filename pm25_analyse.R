@@ -26,12 +26,19 @@ library(plyr)
 # Use ddply to group by "year" and sum "Emissions"
 q1_data <- ddply(NEI_pm25, c("year"), summarise,
                  TotalPerYear    = sum(as.numeric(Emissions)))
+
+png(filename='plot1.png',width=640,height=640,units="px")
 plot(q1_data,col="red",
 	xlab="Year",
-	ylab="PM25",
+	ylab="PM2.5",
 	cex=1.5,
 	pch=15,
-	main="United States PM2.5 Emission in years 1999,2002,2005,2008.")
+	main="USA PM2.5 Emission in years 1999,2002,2005,2008.")
+
+smoothingSpline = smooth.spline(q1_data$year,q1_data$TotalPerYear, spar=0.2)
+lines(smoothingSpline,col="grey")
+
+dev.off()
 
 
 ## > QUESTION 2 "Total emissions from PM2.5 in the Baltimore City, Maryland (fips == "24510") from 1999 to 2008" < #
@@ -42,14 +49,20 @@ NEI_pm25_baltimore <- NEI_pm25[NEI_pm25$fips == "24510",]
 # Use ddply to group by "year" and sum "Emissions"
 q2_data <- ddply(NEI_pm25_baltimore, c("year"), summarise,
                  TotalPerYear    = sum(Emissions))
+
+png(filename='plot2.png',width=640,height=640,units="px")
 plot(q2_data,
 	col="blue",
-	xlab="year",
-	ylab="PM25",
+	xlab="Year",
+	ylab="PM2.5",
 	cex=1.5,
 	pch=15,
 	main="Baltimore PM2.5 Emission in years 1999,2002,2005,2008.")
 
+smoothingSpline = smooth.spline(q2_data$year,q2_data$TotalPerYear, spar=0.2)
+lines(smoothingSpline,col="grey")
+
+dev.off()
 
 # > QUESTION 3 "Total emissions from PM2.5 in Baltimore from 1999 to 2008 per source type (point, nonpoint, onroad, nonroad)" < #
 
@@ -58,12 +71,17 @@ NEI_pm25_baltimore <- NEI_pm25[NEI_pm25$fips == "24510",]
 
 q3_data <- ddply(NEI_pm25_baltimore, c("type","year"), summarise,
                  TotalPerYear    = sum(as.numeric(Emissions)))
-qplot(year, TotalPerYear, data = q3_data, geom = "line",
+
+png(filename='plot3.png',width=640,height=640,units="px")
+print(qplot(year,
+    TotalPerYear,
+    data = q3_data,
+    geom = c("smooth","point"),
     colour = type,
     xlab = "Year",
     ylab = "Total Emissions per Year",
-    main = "Baltimore PM2.5 Emission in years 1999,2002,2005,2008 per each source type")
-
+    main = "Baltimore PM2.5 Emission in years 1999,2002,2005,2008 per each source type"))
+dev.off()
 
 # > QUESTION 4 "Total emissions from PM2.5 in United States from 1999 to 2008 from Coal related sources" < #
 
@@ -83,13 +101,18 @@ NEI_pm25_coal <- NEI_pm25[NEI_pm25$SCC %in% coalRelatedSources,]
 q4_data <- ddply(NEI_pm25_coal, c("year"), summarise,
                  TotalPerYear    = sum(as.numeric(Emissions)))
 
+png(filename='plot4.png',width=640,height=640,units="px")
 plot(q4_data,col="black",
 	xlab="Year",
 	ylab="PM25",
 	cex=2,
 	pch=18,
-	main="United States PM2.5 Emission in years 1999,2002,2005,2008 from coal combustion-related sources")
+	main="USA PM2.5 Emission in years 1999,2002,2005,2008 from coal combustion sources")
 
+smoothingSpline = smooth.spline(q4_data$year,q4_data$TotalPerYear, spar=0.2)
+lines(smoothingSpline,col="grey")
+
+dev.off()
 
 
 # > QUESTION 5 "Total emissions from PM2.5 in Baltimore from 1999 to 2008 from motor Vehicles" < #
@@ -114,13 +137,17 @@ NEI_pm25_baltimore_vehicle <- NEI_pm25_baltimore[NEI_pm25_baltimore$SCC %in% mot
 q5_data <- ddply(NEI_pm25_baltimore_vehicle, c("year"), summarise,
                  TotalPerYear    = sum(as.numeric(Emissions)))
 
+png(filename='plot5.png',width=640,height=640,units="px")
 plot(q5_data,col="orange",
 	xlab="Year",
 	ylab="PM25",
 	cex=1.2,
 	pch=16,
 	main="Baltimore PM2.5 Emission in years 1999,2002,2005,2008 from motor vehicles sources")
+smoothingSpline = smooth.spline(q5_data$year,q5_data$TotalPerYear, spar=0.2)
+lines(smoothingSpline,col="grey")
 
+dev.off()
 
 
 
@@ -159,17 +186,17 @@ q6_data_2$City="Los Angeles"
 
 q6_data <-rbind(q6_data_1,q6_data_2)
 
-qplot(year, TotalPerYear, data = q6_data, geom = "line",
+png(filename='plot6.png',width=640,height=640,units="px")
+print(qplot(year,
+    TotalPerYear,
+    data = q6_data,
+    geom = c("smooth","point"),
+    method="auto",
     colour = City,
     xlab = "Year",
     ylab = "Total Emissions per Year",
-    main = "Baltimore PM2.5 Emission in years 1999,2002,2005,2008 per each source type")
-
-
-
-
-
-
+    main = "Baltimore vs Los Angeles PM2.5 Emission in years 1999,2002,2005,2008 from vehicles"))
+dev.off()
 
 
 

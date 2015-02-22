@@ -149,14 +149,21 @@ NEI_pm25_losangeles_vehicle <- NEI_pm25_losangeles[NEI_pm25_losangeles$SCC %in% 
 
 q6_data_1 <- ddply(NEI_pm25_baltimore_vehicle, c("year"), summarise,
                  TotalPerYear    = sum(as.numeric(Emissions)))
+q6_data_1$City="Baltimore"
 
 q6_data_2 <- ddply(NEI_pm25_losangeles_vehicle, c("year"), summarise,
                  TotalPerYear    = sum(as.numeric(Emissions)))
+q6_data_2$City="Los Angeles"
 
+# Binding data to plot on same graph with ggplot2
 
+q6_data <-rbind(q6_data_1,q6_data_2)
 
-
-
+qplot(year, TotalPerYear, data = q6_data, geom = "line",
+    colour = City,
+    xlab = "Year",
+    ylab = "Total Emissions per Year",
+    main = "Baltimore PM2.5 Emission in years 1999,2002,2005,2008 per each source type")
 
 
 

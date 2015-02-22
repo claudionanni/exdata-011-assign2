@@ -1,6 +1,18 @@
 ### pm25_analyse.R : download, merge, clean, export  dataset from EPA NEI ### 
 
 
+# We will use some fuctions, especially ddply to group and summarize.
+
+#install.packages("plyr")
+#install.packages("ggplot2")
+#install.packages("grid")
+#install.packages("gridExtra")
+
+library(plyr)
+library(ggplot2)
+library(grid)
+library(gridExtra)
+
 # Download zip file if not done already
 if (!file.exists('NEI_data.zip')) {
     download.file(paste0('https://d396qusza40orc.cloudfront.net/',
@@ -20,6 +32,9 @@ NEI_pm25 <- NEI[NEI$Pollutant == "PM25-PRI",]
 
 # We will use some fuctions, especialluy ddply to group and summarize.
 library(plyr)
+library(ggplot2)
+library(grid)
+library(gridExtra)
 
 ## > QUESTION 1 "Total emissions from PM2.5 in the United States from 1999 to 2008" < #
 
@@ -180,26 +195,59 @@ NEI_pm25_losangeles_vehicle <- NEI_pm25_losangeles[NEI_pm25_losangeles$SCC %in% 
 q6_data_1 <- ddply(NEI_pm25_baltimore_vehicle, c("year"), summarise,
                  TotalPerYear    = sum(as.numeric(Emissions)))
 q6_data_1$City="Baltimore"
+q6_data_1_max <- max(q6_data_1$TotalPerYear)
+
 
 q6_data_2 <- ddply(NEI_pm25_losangeles_vehicle, c("year"), summarise,
                  TotalPerYear    = sum(as.numeric(Emissions)))
 q6_data_2$City="Los Angeles"
+q6_data_2_max <- max(q6_data_2$TotalPerYear)
 
 # Binding data to plot on same graph with ggplot2
 
 q6_data <-rbind(q6_data_1,q6_data_2)
 
-png(filename='plot6.png',width=640,height=640,units="px")
-# Using smoothing with very little amount of points generates some warnings, we suppress them here.
-suppressWarnings(print(qplot(year,
+
+
+
+
+# This graph has both plots on same canvas, but you can't appreciate the rate of change for each city since their scale is too different, Los Angeles is 10 times higher than Baltimore 
+#suppressWarnings(print(
+# qplot(year,
+#    TotalPerYear,
+#    data = q6_data,
+#    geom = c("smooth","point"),
+#    method="loess",
+#    colour = City,
+#    xlab = "Year",
+#    ylab = "Total Emissions per Year",
+#    main = "Baltimore vs Los Angeles PM2.5 Emission in years 1999,2002,2005,2008 from vehicles")
+#))
+
+# So I went for a side by side plot on different facets so that the scale is different, and the graph is normalized to same size so that you can appreciate the rate of change for each city
+plot_baltimore <- qplot(year,
     TotalPerYear,
-    data = q6_data,
+    data = q6_data_1,
     geom = c("smooth","point"),
     method="loess",
-    colour = City,
     xlab = "Year",
     ylab = "Total Emissions per Year",
-    main = "Baltimore vs Los Angeles PM2.5 Emission in years 1999,2002,2005,2008 from vehicles")))
+    main = "Baltimore")
+
+
+
+plot_losangeles <- qplot(year,
+    TotalPerYear,
+    data = q6_data_2,
+    geom = c("smooth","point"),
+    method="loess",
+    xlab = "Year",
+    ylab = "Total Emissions per Year",
+    main = "Los Angeles")
+
+# Using smoothing with very little amount of points generates some warnings, we suppress them here.
+png(filename='plot6.png',width=640,height=640,units="px")
+suppressWarnings(grid.arrange(plot_baltimore, plot_losangeles, ncol = 2, main = "PM2.5 Emission in years 1999,2002,2005,2008 from vehicles"))
 dev.off()
 
 

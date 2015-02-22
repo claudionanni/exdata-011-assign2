@@ -35,7 +35,7 @@ plot(q1_data,col="red",
 	pch=15,
 	main="USA PM2.5 Emission in years 1999,2002,2005,2008.")
 
-smoothingSpline = smooth.spline(q1_data$year,q1_data$TotalPerYear, spar=0.2)
+smoothingSpline = smooth.spline(q1_data$year,q1_data$TotalPerYear, spar=0)
 lines(smoothingSpline,col="grey")
 
 dev.off()
@@ -59,7 +59,7 @@ plot(q2_data,
 	pch=15,
 	main="Baltimore PM2.5 Emission in years 1999,2002,2005,2008.")
 
-smoothingSpline = smooth.spline(q2_data$year,q2_data$TotalPerYear, spar=0.2)
+smoothingSpline = smooth.spline(q2_data$year,q2_data$TotalPerYear, spar=0)
 lines(smoothingSpline,col="grey")
 
 dev.off()
@@ -73,14 +73,17 @@ q3_data <- ddply(NEI_pm25_baltimore, c("type","year"), summarise,
                  TotalPerYear    = sum(as.numeric(Emissions)))
 
 png(filename='plot3.png',width=640,height=640,units="px")
-print(qplot(year,
+
+# Using smoothing with very little amount of points generates some warnings, we suppress them here.
+suppressWarnings(print(qplot(year,
     TotalPerYear,
     data = q3_data,
     geom = c("smooth","point"),
+    method = "loess",
     colour = type,
     xlab = "Year",
     ylab = "Total Emissions per Year",
-    main = "Baltimore PM2.5 Emission in years 1999,2002,2005,2008 per each source type"))
+    main = "Baltimore PM2.5 Emission in years 1999,2002,2005,2008 per each source type")))
 dev.off()
 
 # > QUESTION 4 "Total emissions from PM2.5 in United States from 1999 to 2008 from Coal related sources" < #
@@ -109,7 +112,7 @@ plot(q4_data,col="black",
 	pch=18,
 	main="USA PM2.5 Emission in years 1999,2002,2005,2008 from coal combustion sources")
 
-smoothingSpline = smooth.spline(q4_data$year,q4_data$TotalPerYear, spar=0.2)
+smoothingSpline = smooth.spline(q4_data$year,q4_data$TotalPerYear, spar=0)
 lines(smoothingSpline,col="grey")
 
 dev.off()
@@ -144,7 +147,7 @@ plot(q5_data,col="orange",
 	cex=1.2,
 	pch=16,
 	main="Baltimore PM2.5 Emission in years 1999,2002,2005,2008 from motor vehicles sources")
-smoothingSpline = smooth.spline(q5_data$year,q5_data$TotalPerYear, spar=0.2)
+smoothingSpline = smooth.spline(q5_data$year,q5_data$TotalPerYear, spar=0)
 lines(smoothingSpline,col="grey")
 
 dev.off()
@@ -187,15 +190,16 @@ q6_data_2$City="Los Angeles"
 q6_data <-rbind(q6_data_1,q6_data_2)
 
 png(filename='plot6.png',width=640,height=640,units="px")
-print(qplot(year,
+# Using smoothing with very little amount of points generates some warnings, we suppress them here.
+suppressWarnings(print(qplot(year,
     TotalPerYear,
     data = q6_data,
     geom = c("smooth","point"),
-    method="auto",
+    method="loess",
     colour = City,
     xlab = "Year",
     ylab = "Total Emissions per Year",
-    main = "Baltimore vs Los Angeles PM2.5 Emission in years 1999,2002,2005,2008 from vehicles"))
+    main = "Baltimore vs Los Angeles PM2.5 Emission in years 1999,2002,2005,2008 from vehicles")))
 dev.off()
 
 
